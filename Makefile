@@ -7,6 +7,10 @@
 # Compilador a ser usado
 CC = gcc
 
+# Ferramentas 
+LEX = flex
+YACC = bison
+
 # Opções de compilação
 CFLAGS = -Wall -Wextra
 
@@ -14,29 +18,29 @@ CFLAGS = -Wall -Wextra
 EXECUTABLE = etapa3
 
 # Listagem de arquivos fonte
-SOURCES = parser.y functions.c ast.c main.c
+SOURCES = lex.yy.c parser.tab.c functions.c ast.c main.c
 
 # Objetos gerados
-OBJECTS = parser.tab.c lex.yy.c functions.o ast.o main.o
+OBJECTS = $(SOURCES:.c=.o)
+
+# Alvo padrão
+all: $(EXECUTABLE)
 
 # Dependências para construção do executável
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
+# Regra genérica para compilar arquivos .c
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 # Regra para construir o analisador sintático
-parser.tab.c: parser.y
-	bison -v -d $<
+parser.tab.c: parser.y estruturas.h ast.h functions.h
+	$(YACC) -v -d $< -o $@
 
 # Regra para construir o analisador léxico
-lex.yy.c: scanner.l
-	flex $<
-
-# Regra genérica para compilar arquivos .c
-%.o: %.c functions.h
-	$(CC) $(CFLAGS) -c $<
-
-# Alvo padrão
-all: $(EXECUTABLE)
+lex.yy.c: scanner.l parser.tab.c
+	$(LEX) $<
 
 # Alvo para execução do programa
 run: $(EXECUTABLE)
@@ -44,4 +48,4 @@ run: $(EXECUTABLE)
 
 # Alvo para limpar arquivos gerados
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE) parser.tab.* parser.output
+	rm -f $(OBJECTS) $(EXECUTABLE) lex.yy.c parser.tab.* parser.output

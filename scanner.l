@@ -4,10 +4,13 @@
     - Bruno Marques Bastos (314518)
     - Gustavo Lopes Noll (322864)
     */
+    #include <stdlib.h>
+    #include <stdio.h>
     #include "parser.tab.h"
     #include "functions.h"
     #include "estruturas.h"
     #include "ast.h"
+    void preencheValorLexico(int tipo);
 %}
 
 %option noyywrap
@@ -54,15 +57,15 @@ literal_float [0-9]*\.[0-9]+
 ";"  { return (int) ';'; }
 
 
-true {return TK_LIT_TRUE;}
-false {return TK_LIT_FALSE;}
+true { preencheValorLexico(LIT_BOOLEANO); return TK_LIT_TRUE;}
+false { preencheValorLexico(LIT_BOOLEANO); return TK_LIT_FALSE;}
 
 
-{identificador} { return TK_IDENTIFICADOR; }
-{literal_inteiro} { return TK_LIT_INT; }
+{identificador} { preencheValorLexico(IDENTIFICADOR); return TK_IDENTIFICADOR; }
+{literal_inteiro} { preencheValorLexico(LIT_INTEIRO); return TK_LIT_INT; }
 
 
-{literal_float} {return TK_LIT_FLOAT;}
+{literal_float} { preencheValorLexico(LIT_FLUTUANTE); return TK_LIT_FLOAT;}
 
 \n  { increment_line_number(); }
 
@@ -85,33 +88,33 @@ false {return TK_LIT_FALSE;}
 
 void preencheValorLexico(int tipo)
 {
-    yylval.vl = malloc(sizeof(valor_lexico));
-    yylval.vl->linha = get_line_number();
+    yylval.v_lexico = malloc(sizeof(valor_lexico));
+    yylval.v_lexico->linha = get_line_number();
 
     switch(tipo)
     {
         case LIT_INTEIRO:
-            yylval.vl->tipo = LIT_INTEIRO;
-            yylval.vl->valor.inteiro = atoi(yytext);
+            yylval.v_lexico->tipo = LIT_INTEIRO;
+            yylval.v_lexico->valor.inteiro = atoi(yytext);
             break;
         case LIT_FLUTUANTE:
-            yylval.vl->tipo = LIT_FLUTUANTE;
-            yylval.vl->valor.flutuante = atof(yytext);
+            yylval.v_lexico->tipo = LIT_FLUTUANTE;
+            yylval.v_lexico->valor.flutuante = atof(yytext);
             break;
         case LIT_BOOLEANO:
-            yylval.vl->tipo = LIT_BOOLEANO;
-            yylval.vl->valor.palavra = strdup(yytext);
+            yylval.v_lexico->tipo = LIT_BOOLEANO;
+            yylval.v_lexico->valor.palavra = strdup(yytext);
             break;
         case IDENTIFICADOR:
-            yylval.vl->tipo = IDENTIFICADOR;
-            yylval.vl->valor.palavra = strdup(yytext);
+            yylval.v_lexico->tipo = IDENTIFICADOR;
+            yylval.v_lexico->valor.palavra = strdup(yytext);
             break;
         case OPERADOR_CONDICIONAL:
-            yylval.vl->tipo = OPERADOR_CONDICIONAL;
-            yylval.vl->valor.palavra = strdup(yytext);
+            yylval.v_lexico->tipo = OPERADOR_CONDICIONAL;
+            yylval.v_lexico->valor.palavra = strdup(yytext);
             break;
         default:
-            free(yylval.vl);
+            free(yylval.v_lexico);
             break;
     }
 }

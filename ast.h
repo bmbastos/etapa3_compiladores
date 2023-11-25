@@ -14,6 +14,8 @@
 
 #define TIPO_CABECA_LISTA 0
 #define TIPO_LITERAL 1
+#define TIPO_IDENTIFICADOR 2
+#define TIPO_ATRIBUICAO 3
 
 typedef struct nodo{
   int valor;
@@ -27,6 +29,7 @@ nodo* novoNo(int tipo, valor_lexico* vl);
 void adicionarFilho(nodo* pai, nodo* filho);
 void adicionarProximo(nodo* atual, nodo* proximo);
 void adicionarIrmao(nodo* atual, nodo* irmao);
-
+nodo* novaFuncao(valor_lexico* vl);
+nodo* comandoAtribuicao(nodo* identificador, nodo* valor);
 
 #endif

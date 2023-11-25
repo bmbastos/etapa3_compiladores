@@ -39,3 +39,10 @@ void adicionarIrmao(nodo* atual, nodo* irmao){
     adicionarIrmao(atual->irmao, irmao);
   }
 }
+
+nodo* comandoAtribuicao(nodo* identificador, nodo* valor){
+  nodo* noAtribuicao = novoNo(TIPO_ATRIBUICAO, NULL);
+  adicionarFilho(noAtribuicao, identificador);
+  adicionarFilho(noAtribuicao, valor);
+  return noAtribuicao;
+}
