@@ -4,8 +4,8 @@
  * - Gustavo Lopes Noll (322864)
 */
 
-#ifndef ESTRUTURA_H
-#define ESTRUTURA_H
+#ifndef ESTRUTURAS_H
+#define ESTRUTURAS_H
 #define TRUE "true"
 #define FALSE "false"
 

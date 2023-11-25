@@ -14,10 +14,10 @@ CFLAGS = -Wall -Wextra
 EXECUTABLE = etapa3
 
 # Listagem de arquivos fonte
-SOURCES = parser.y main.c
+SOURCES = parser.y functions.c ast.c main.c
 
 # Objetos gerados
-OBJECTS = parser.tab.c lex.yy.c main.o functions.o
+OBJECTS = parser.tab.c lex.yy.c functions.o ast.o main.o
 
 # Dependências para construção do executável
 $(EXECUTABLE): $(OBJECTS)

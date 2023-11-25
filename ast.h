@@ -12,13 +12,21 @@
 #include <string.h>
 #include "estruturas.h"
 
+#define TIPO_CABECA_LISTA 0
+#define TIPO_LITERAL 1
+
 typedef struct nodo{
-  int valor_gramatical;
+  int valor;
   valor_lexico* vl;
   struct nodo* filho;
   struct nodo* proximo;
   struct nodo* irmao;
 } nodo;
+
+nodo* novoNo(int tipo, valor_lexico* vl);
+void adicionarFilho(nodo* pai, nodo* filho);
+void adicionarProximo(nodo* atual, nodo* proximo);
+void adicionarIrmao(nodo* atual, nodo* irmao);
 
 
 #endif

@@ -6,6 +6,8 @@
     */
     #include "parser.tab.h"
     #include "functions.h"
+    #include "estruturas.h"
+    #include "ast.h"
 %}
 
 %option noyywrap
@@ -28,12 +30,12 @@ literal_float [0-9]*\.[0-9]+
 "while" {return TK_PR_WHILE;}
 "return" {return TK_PR_RETURN;}
 
-"<=" { return TK_OC_LE; }
-">=" { return TK_OC_GE; }
-"==" { return TK_OC_EQ; }
-"!=" { return TK_OC_NE; }
-"&" { return TK_OC_AND; }
-"|"  { return TK_OC_OR; }
+"<=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_LE; }
+">=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_GE; }
+"==" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_EQ; }
+"!=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_NE; }
+"&"  { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_AND; }
+"|"  { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_OR; }
 
 "-"  { return (int) '-'; }
 "!"  { return (int) '!'; }
@@ -80,3 +82,36 @@ false {return TK_LIT_FALSE;}
 [ \t\r\n] { } // Ignorar espaços e tabulações
 . {return TK_ERRO;}
 %%
+
+void preencheValorLexico(int tipo)
+{
+    yylval.vl = malloc(sizeof(valor_lexico));
+    yylval.vl->linha = get_line_number();
+
+    switch(tipo)
+    {
+        case LIT_INTEIRO:
+            yylval.vl->tipo = LIT_INTEIRO;
+            yylval.vl->valor.inteiro = atoi(yytext);
+            break;
+        case LIT_FLUTUANTE:
+            yylval.vl->tipo = LIT_FLUTUANTE;
+            yylval.vl->valor.flutuante = atof(yytext);
+            break;
+        case LIT_BOOLEANO:
+            yylval.vl->tipo = LIT_BOOLEANO;
+            yylval.vl->valor.palavra = strdup(yytext);
+            break;
+        case IDENTIFICADOR:
+            yylval.vl->tipo = IDENTIFICADOR;
+            yylval.vl->valor.palavra = strdup(yytext);
+            break;
+        case OPERADOR_CONDICIONAL:
+            yylval.vl->tipo = OPERADOR_CONDICIONAL;
+            yylval.vl->valor.palavra = strdup(yytext);
+            break;
+        default:
+            free(yylval.vl);
+            break;
+    }
+}
