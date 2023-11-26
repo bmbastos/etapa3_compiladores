@@ -25,13 +25,13 @@ literal_float [0-9]*\.[0-9]+
 
 %%
 
-"int" {return TK_PR_INT;}
-"float" {return TK_PR_FLOAT;}
-"bool" {return TK_PR_BOOL;}
-"if" {return TK_PR_IF;}
-"else" {return TK_PR_ELSE;}
-"while" {return TK_PR_WHILE;}
-"return" {return TK_PR_RETURN;}
+"int" {yylval.v_lexico = define_yyval(yytext, TYPE, NAO_LITERAL, get_line_number()); return TK_PR_INT;}
+"float" {yylval.v_lexico = define_yyval(yytext, TYPE, NAO_LITERAL, get_line_number()); return TK_PR_FLOAT;}
+"bool" {yylval.v_lexico = define_yyval(yytext, TYPE, NAO_LITERAL, get_line_number()); return TK_PR_BOOL;}
+"if" {yylval.v_lexico = define_yyval(yytext, CONTROL, NAO_LITERAL, get_line_number());return TK_PR_IF;}
+"else" {yylval.v_lexico = define_yyval(yytext, CONTROL, NAO_LITERAL, get_line_number());return TK_PR_ELSE;}
+"while" {yylval.v_lexico = define_yyval(yytext, CONTROL, NAO_LITERAL, get_line_number());return TK_PR_WHILE;}
+"return" {yylval.v_lexico = define_yyval(yytext, CONTROL, NAO_LITERAL, get_line_number());return TK_PR_RETURN;}
 
 
 ">=" { yylval.v_lexico = define_yyval(yytext, OPERADOR_LOGICO, NAO_LITERAL, get_line_number()); return TK_OC_GE;}

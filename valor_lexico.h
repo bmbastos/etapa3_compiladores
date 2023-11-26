@@ -13,6 +13,8 @@ typedef enum tipo
     IDENTIFICADOR,
     LITERAL,
     FUNCAO,
+    TYPE,
+    CONTROL,
     OUTRO
 } Tipo;
 
