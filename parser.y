@@ -214,10 +214,10 @@ primario: '(' expressao ')' { $$ = $2; }
         | chamada_funcao{ $$ = $1; }
         ;
 
-literais: TK_LIT_INT { $$ = adiciona_nodo_label("int"); }
-        | TK_LIT_FLOAT { $$ = adiciona_nodo_label("float"); }
-        | TK_LIT_FALSE { $$ = adiciona_nodo_label("false"); }
-        | TK_LIT_TRUE { $$ = adiciona_nodo_label("true"); }
+literais: TK_LIT_INT { $$ = adiciona_nodo($1); }
+        | TK_LIT_FLOAT { $$ = adiciona_nodo($1); }
+        | TK_LIT_FALSE { $$ = adiciona_nodo($1); }
+        | TK_LIT_TRUE { $$ = adiciona_nodo($1); }
         ;
 
 %%

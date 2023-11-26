@@ -42,9 +42,6 @@ Nodo *adiciona_filho(Nodo *nodo, Nodo *filho)
 {
    if(nodo!= NULL && filho!=NULL)
    {
-       _imprime_nodo(nodo);
-       _imprime_arestas(nodo);
-       printf("novo------------");
        if(nodo->filho == NULL)
        {
            nodo->filho = filho;
@@ -159,10 +156,10 @@ void _imprime_arestas(Nodo *nodo)
 
 void exporta(void *arvore)
 {
-    printf("export\n");
     Nodo *nodo_arvore;
     nodo_arvore = (Nodo*) arvore;
     _imprime_nodo(nodo_arvore);
     _imprime_arestas(nodo_arvore);
+    imprime_arvore(nodo_arvore, 0);
     return;
 }
