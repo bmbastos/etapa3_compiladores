@@ -7,9 +7,12 @@
 typedef enum tipo
 {
     CARACTERE_ESPECIAL,
-    OPERADOR_COMPOSTO,
+    OPERADOR_LOGICO,
+    OPERADOR_ARITMETICO_UNARIO,
+    OPERADOR_ARITMETICO_BINARIO,
     IDENTIFICADOR,
     LITERAL,
+    FUNCAO,
     OUTRO
 } Tipo;
 
@@ -18,7 +21,6 @@ typedef enum tipoLiteral
     INTEIRO,
     FLOAT,
     BOOL,
-    CHAR,
     NAO_LITERAL
 } TipoLiteral;
 
@@ -32,7 +34,6 @@ typedef struct valorLexico
         int valor_int;
         float valor_float;
         int valor_bool;
-        char valor_char;
     } valor;
 } valorLexico;
 

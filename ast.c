@@ -156,6 +156,12 @@ void _imprime_arestas(Nodo *nodo)
 
 void exporta(void *arvore)
 {
+<<<<<<< HEAD
+=======
+    if(arvore == NULL){
+        printf("Árvore vazia\n");
+    }
+>>>>>>> bf80e79 (New commit)
     Nodo *nodo_arvore;
     nodo_arvore = (Nodo*) arvore;
     _imprime_nodo(nodo_arvore);

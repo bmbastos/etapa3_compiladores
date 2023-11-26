@@ -22,8 +22,7 @@ valorLexico define_yyval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, int 
          case INTEIRO:
             valor_lexico.valor.valor_int=atoi(yytext);
             break;
-         case CHAR:
-            valor_lexico.valor.valor_char=yytext[1];
+         case NAO_LITERAL:
             break;
       }
 
