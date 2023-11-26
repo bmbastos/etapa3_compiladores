@@ -1,7 +1,7 @@
 /*
-Integrantes do grupo V
-- Bruno Marques Bastos (314518)
-- Gustavo Lopes Noll (322864)
+  Integrantes do grupo V
+  - Bruno Marques Bastos (314518)
+  - Gustavo Lopes Noll (322864)
 */
 
 int get_line_number(void);

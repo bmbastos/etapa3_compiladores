@@ -4,45 +4,165 @@
  * - Gustavo Lopes Noll (322864)
 */
 #include "ast.h"
+#include "valor_lexico.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-nodo* novoNo(int tipo, valor_lexico* vl){
-  nodo* novo =  malloc(sizeof(nodo));
-  printf("No: %p\n", novo );
-  novo->valor = tipo;
-  novo->vl = vl;
-  novo->filho = NULL;
-  novo->proximo = NULL;
-  novo->irmao = NULL;
-  return novo;
+Nodo *adiciona_nodo(valorLexico valor_lexico)
+{
+    Nodo *nodo;
+    nodo = malloc(sizeof(Nodo));
+
+    nodo->filho = NULL;
+    nodo->irmao = NULL;
+    nodo->valor_lexico = valor_lexico;
+
+    return nodo;
 }
 
-void adicionarFilho(nodo* pai, nodo* filho){
-  if(pai->filho == NULL){
-    pai->filho = filho;
-  } else {
-    adicionarIrmao(pai->filho, filho);
-  }
+Nodo *adiciona_nodo_label(char *label)
+{
+    valorLexico valor_lexico;
+    valor_lexico.linha = 0;
+    valor_lexico.tipo = OUTRO;
+    valor_lexico.tipo_literal = NAO_LITERAL;
+    valor_lexico.label = strdup(label);
+
+    Nodo *nodo;
+    nodo = malloc(sizeof(Nodo));
+
+    nodo->valor_lexico = valor_lexico;
+    nodo->filho = NULL;
+    nodo->irmao = NULL;
+
+    return nodo;
 }
 
-void adicionarProximo(nodo* atual, nodo* proximo){
-  if(atual->proximo == NULL){
-    atual->proximo = proximo;
-  } else {
-    adicionarProximo(atual->proximo, proximo);
-  }
+Nodo *adiciona_filho(Nodo *nodo, Nodo *filho) 
+{
+   if(nodo!= NULL && filho!=NULL)
+   {
+       _imprime_nodo(nodo);
+       _imprime_arestas(nodo);
+       printf("novo------------");
+       if(nodo->filho == NULL)
+       {
+           nodo->filho = filho;
+       }
+       else
+       {
+           _adiciona_ultimo_irmao(nodo->filho, filho);
+       }
+   }
+   return nodo;
 }
 
-void adicionarIrmao(nodo* atual, nodo* irmao){
-  if(atual->irmao == NULL){
-    atual->irmao = irmao;
-  } else {
-    adicionarIrmao(atual->irmao, irmao);
-  }
+void imprime_arvore(Nodo *nodo, int profundidade)
+{
+    int i = 0;
+
+    if (nodo == NULL)
+        return;
+    
+    for(i = 0; i<profundidade-1; i++) 
+    {
+        printf("    ");
+    }
+
+    if (profundidade == 0)
+        printf("%s", nodo->valor_lexico.label);
+    else 
+    {
+        printf("+---");
+        printf("%s", nodo->valor_lexico.label);
+    }
+    printf("\n");
+
+    Nodo *nodo_f = nodo->filho;
+    while(nodo_f!=NULL)
+    {
+        imprime_arvore(nodo_f, profundidade+1);
+        nodo_f = nodo_f->irmao;
+    }
+    
+    return;
 }
 
-nodo* comandoAtribuicao(nodo* identificador, nodo* valor){
-  nodo* noAtribuicao = novoNo(TIPO_ATRIBUICAO, NULL);
-  adicionarFilho(noAtribuicao, identificador);
-  adicionarFilho(noAtribuicao, valor);
-  return noAtribuicao;
+void _adiciona_ultimo_irmao(Nodo *nodo_irmao, Nodo *novo_irmao)
+{
+    Nodo *aux_nodo = nodo_irmao;
+
+    while(aux_nodo->irmao!=NULL)
+    {
+        aux_nodo = aux_nodo->irmao;
+    }
+    aux_nodo->irmao = novo_irmao;
+    novo_irmao->irmao = NULL;
+    return;
+}
+
+
+void libera(void *pai)
+{
+    if(pai == NULL) return;
+
+    Nodo *pai_arvore = (Nodo*)pai;
+
+    if (pai_arvore->filho != NULL) {
+        libera(pai_arvore->filho);
+    }
+
+    if (pai_arvore->irmao != NULL) {
+        libera(pai_arvore->irmao);
+    }
+
+    libera_vl(pai_arvore->valor_lexico);
+
+    free(pai_arvore);
+}
+
+void _imprime_nodo(Nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+    printf("%p [label=\"", nodo);
+    printf("%s", nodo->valor_lexico.label);
+    printf("\"];\n");
+
+    Nodo *nodo_f;
+    nodo_f = nodo->filho;
+    while(nodo_f!=NULL)
+    {
+        _imprime_nodo(nodo_f);
+        nodo_f = nodo_f->irmao;
+    }
+    
+    return;
+}
+
+void _imprime_arestas(Nodo *nodo)
+{
+    if (nodo == NULL)
+        return;
+
+    Nodo *nodo_f;
+    nodo_f = nodo->filho;
+    while(nodo_f!=NULL)
+    {
+        printf("%p, %p\n", nodo, nodo_f);
+        _imprime_arestas(nodo_f);
+        nodo_f = nodo_f->irmao;
+    }
+    
+    return;
+}
+
+void exporta(void *arvore)
+{
+    printf("export\n");
+    Nodo *nodo_arvore;
+    nodo_arvore = (Nodo*) arvore;
+    _imprime_nodo(nodo_arvore);
+    _imprime_arestas(nodo_arvore);
+    return;
 }

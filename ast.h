@@ -4,32 +4,25 @@
  * - Gustavo Lopes Noll (322864)
 */
 
-#ifndef AST_H
-#define AST_H
-
+#pragma once
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "estruturas.h"
+#include "valor_lexico.h"
 
-#define TIPO_CABECA_LISTA 0
-#define TIPO_LITERAL 1
-#define TIPO_IDENTIFICADOR 2
-#define TIPO_ATRIBUICAO 3
+typedef struct Nodo {
+    valorLexico valor_lexico;
+    struct Nodo *irmao;
+    struct Nodo *filho;
+} Nodo;
 
-typedef struct nodo{
-  int valor;
-  valor_lexico* vl;
-  struct nodo* filho;
-  struct nodo* proximo;
-  struct nodo* irmao;
-} nodo;
-
-nodo* novoNo(int tipo, valor_lexico* vl);
-void adicionarFilho(nodo* pai, nodo* filho);
-void adicionarProximo(nodo* atual, nodo* proximo);
-void adicionarIrmao(nodo* atual, nodo* irmao);
-nodo* novaFuncao(valor_lexico* vl);
-nodo* comandoAtribuicao(nodo* identificador, nodo* valor);
-
-#endif
+Nodo *adiciona_nodo(valorLexico valor_lexico);
+Nodo *adiciona_nodo_label(char *label);
+Nodo *adiciona_filho(Nodo *nodo, Nodo *filho);
+void imprime_arvore(Nodo *nodo, int profundidade);
+void _adiciona_ultimo_irmao(Nodo *nodo_irmao, Nodo *novo_irmao);
+void libera(void *pai);
+void libera_irmaos(void *filhos);
+void libera_nodo(Nodo *nodo);
+void _imprime_nodo(Nodo *nodo);
+void _imprime_arestas(Nodo *nodo);
+void exporta(void *arvore);

@@ -1,16 +1,16 @@
-%{ 
+%{
     /*
     Integrantes do grupo V
     - Bruno Marques Bastos (314518)
     - Gustavo Lopes Noll (322864)
     */
-    #include <stdlib.h>
-    #include <stdio.h>
-    #include "parser.tab.h"
-    #include "functions.h"
-    #include "estruturas.h"
+    #include<stdio.h>
+    #include<string.h>
     #include "ast.h"
-    void preencheValorLexico(int tipo);
+    #include "parser.tab.h"
+    #include "valor_lexico.h"
+    #include "functions.h"
+    #define YYSTYPE valorLexico
 %}
 
 %option noyywrap
@@ -19,7 +19,7 @@ identificador [a-z_][a-z_0-9]*
 
 literal_inteiro [0-9]+
 literal_float [0-9]*\.[0-9]+
- 
+
 %x comentario
 
 
@@ -33,39 +33,37 @@ literal_float [0-9]*\.[0-9]+
 "while" {return TK_PR_WHILE;}
 "return" {return TK_PR_RETURN;}
 
-"<=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_LE; }
-">=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_GE; }
-"==" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_EQ; }
-"!=" { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_NE; }
-"&"  { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_AND; }
-"|"  { preencheValorLexico(OPERADOR_CONDICIONAL); return TK_OC_OR; }
 
-"-"  { return (int) '-'; }
-"!"  { return (int) '!'; }
-"*" { return (int) '*'; }
-"/"  { return (int) '/'; }
-"%"  { return (int) '%'; }
-"+" { return (int) '+'; }
-"<"  { return (int) '<'; }
-">"  { return (int) '>'; }
-"{" { return (int) '{'; }
-"}" { return (int) '}'; }
-"(" { return (int) '('; }
-")" { return (int) ')'; }
-"=" { return (int) '='; }
-","  { return (int) ','; }
-";"  { return (int) ';'; }
+">=" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_GE;}
+"<=" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_LE;}
+"==" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_EQ;}
+"!=" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_NE;}
+"&" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_AND;}
+"|" { yylval.v_lexico = define_yyval(yytext, OPERADOR_COMPOSTO, NAO_LITERAL, get_line_number()); return TK_OC_OR;}
 
-
-true { preencheValorLexico(LIT_BOOLEANO); return TK_LIT_TRUE;}
-false { preencheValorLexico(LIT_BOOLEANO); return TK_LIT_FALSE;}
+"-"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '-'; }
+"!"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '!'; }
+"*" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '*'; }
+"/"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '/'; }
+"%"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '%'; }
+"+" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '+'; }
+"<"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '<'; }
+">"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '>'; }
+"{" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '{'; }
+"}" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '}'; }
+"(" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '('; }
+")" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) ')'; }
+"=" { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) '='; }
+","  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) ','; }
+";"  { yylval.v_lexico = define_yyval(yytext, CARACTERE_ESPECIAL, CHAR, get_line_number()); return (int) ';'; }
 
 
-{identificador} { preencheValorLexico(IDENTIFICADOR); return TK_IDENTIFICADOR; }
-{literal_inteiro} { preencheValorLexico(LIT_INTEIRO); return TK_LIT_INT; }
+true { yylval.v_lexico = define_yyval(yytext, LITERAL, BOOL, get_line_number()); return TK_LIT_TRUE;}
+false { yylval.v_lexico = define_yyval(yytext, LITERAL, BOOL, get_line_number()); return TK_LIT_FALSE;}
 
-
-{literal_float} { preencheValorLexico(LIT_FLUTUANTE); return TK_LIT_FLOAT;}
+{identificador} { yylval.v_lexico = define_yyval(yytext, IDENTIFICADOR, NAO_LITERAL, get_line_number()); return TK_IDENTIFICADOR;}
+{literal_float} { yylval.v_lexico = define_yyval(yytext, LITERAL, FLOAT, get_line_number()); return TK_LIT_FLOAT;}
+{literal_inteiro} { yylval.v_lexico = define_yyval(yytext, LITERAL, INTEIRO, get_line_number());  return TK_LIT_INT;}
 
 \n  { increment_line_number(); }
 
@@ -84,37 +82,5 @@ false { preencheValorLexico(LIT_BOOLEANO); return TK_LIT_FALSE;}
 }
 [ \t\r\n] { } // Ignorar espaços e tabulações
 . {return TK_ERRO;}
+
 %%
-
-void preencheValorLexico(int tipo)
-{
-    yylval.v_lexico = malloc(sizeof(valor_lexico));
-    yylval.v_lexico->linha = get_line_number();
-
-    switch(tipo)
-    {
-        case LIT_INTEIRO:
-            yylval.v_lexico->tipo = LIT_INTEIRO;
-            yylval.v_lexico->valor.inteiro = atoi(yytext);
-            break;
-        case LIT_FLUTUANTE:
-            yylval.v_lexico->tipo = LIT_FLUTUANTE;
-            yylval.v_lexico->valor.flutuante = atof(yytext);
-            break;
-        case LIT_BOOLEANO:
-            yylval.v_lexico->tipo = LIT_BOOLEANO;
-            yylval.v_lexico->valor.palavra = strdup(yytext);
-            break;
-        case IDENTIFICADOR:
-            yylval.v_lexico->tipo = IDENTIFICADOR;
-            yylval.v_lexico->valor.palavra = strdup(yytext);
-            break;
-        case OPERADOR_CONDICIONAL:
-            yylval.v_lexico->tipo = OPERADOR_CONDICIONAL;
-            yylval.v_lexico->valor.palavra = strdup(yytext);
-            break;
-        default:
-            free(yylval.v_lexico);
-            break;
-    }
-}

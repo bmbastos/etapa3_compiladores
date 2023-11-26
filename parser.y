@@ -4,20 +4,24 @@
     - Bruno Marques Bastos (314518)
     - Gustavo Lopes Noll (322864)
     */
-    #include <stdio.h>
-    #include "functions.h"
-    #include "estruturas.h"
+    #include<stdio.h>
+    #include<string.h>
     #include "ast.h"
-
+    #include "main.h"
+    #include "functions.h"
     int yylex(void);
-    void yyerror (char const *mensagem);
-    void liberaPalavraeNo(valor_lexico *vl);
+    extern void yyerror (char const *s);
+    extern int get_line_number (void);
     extern void *arvore;
 %}
 %define parse.error verbose
+%code requires {
+    #include "valor_lexico.h"
+    #include "ast.h"
+}
 %union{
-    valor_lexico* v_lexico;
-    struct nodo* ast_no;
+    valorLexico v_lexico;
+    struct Nodo* ast_no;
 }
 
 %token TK_PR_INT
@@ -43,6 +47,7 @@
 %type<ast_no> programa
 %type<ast_no> elementos
 %type<ast_no> elemento
+
 %type<ast_no> definicao_funcao
 %type<ast_no> cabecalho_funcao
 %type<ast_no> corpo_funcao
@@ -55,182 +60,164 @@
 %type<ast_no> retorno
 %type<ast_no> bloco_comandos
 %type<ast_no> chamada_funcao_init
+%type<ast_no> argumentos
+%type<ast_no> chamada_funcao
 %type<ast_no> lista_identificadores
+%type<ast_no> primario
+%type<ast_no> prec1
+%type<ast_no> prec2
+%type<ast_no> prec3
+%type<ast_no> prec4
+%type<ast_no> prec5
+%type<ast_no> prec6
+%type<ast_no> prec7
 %type<ast_no> expressao
 %type<ast_no> literais
 
+
 %%
 
-programa: elementos {
-          $$ = $1;
-          }
-        | /* Vazio */ {
-          arvore = $$ = novoNo(TIPO_CABECA_LISTA, NULL);
-          }
-        ;
+programa: elementos { $$ = $1; arvore = $$; }
+        | /* Vazio */ { $$ = NULL; };
 
-elementos: elementos elemento
-         | elemento
-         ;
+elementos: elementos elemento { $$ = $1; adiciona_filho($$, $2); }
+         | elemento { $$ = $1; };
 
-elemento: declaracoes_globais
-        | definicao_funcao {
-          $$ = $1;
-        }
-        ;
+elemento: declaracoes_globais { $$ = NULL; }
+        | definicao_funcao { $$ = $1; };
 
-declaracoes_globais: declaracao_variaveis_globais 
-                 ;
+declaracoes_globais: declaracao_variaveis_globais;
 
 declaracao_variaveis_globais: tipo lista_identificadores ';'
-                        ;
 
 tipo: TK_PR_INT
     | TK_PR_FLOAT
     | TK_PR_BOOL
-    ;
 
-lista_identificadores: TK_IDENTIFICADOR {
-                    liberaPalavraeNo($1);
-                    }
-                   | lista_identificadores ',' TK_IDENTIFICADOR {
-                    liberaPalavraeNo($3);
-                   }
-                   | /* Vazio */
-                   ;
+lista_identificadores: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+                   | lista_identificadores ',' TK_IDENTIFICADOR { adiciona_filho($1, adiciona_nodo($3));  $$ = $1;}
+                   | /* Vazio */ { $$ = NULL; };
 
-definicao_funcao: cabecalho_funcao corpo_funcao {
-                    $$ = $1;
-                    adicionarFilho($1, $2);
-               }
+definicao_funcao: cabecalho_funcao corpo_funcao { 
+    adiciona_filho($1, $2);
+    $$ = $1;
+}
                ;
 
-cabecalho_funcao: parametros TK_OC_GE tipo '!' TK_IDENTIFICADOR {
-                    $$ = novaFuncao($5);
-               }
-               | tipo '!' TK_IDENTIFICADOR TK_OC_GE tipo '!' TK_IDENTIFICADOR {
-                    $$ = novaFuncao($7);
-               }
+cabecalho_funcao: parametros TK_OC_GE tipo '!' TK_IDENTIFICADOR { $$ = adiciona_nodo($5); }
+               | tipo '!' TK_IDENTIFICADOR TK_OC_GE tipo '!' TK_IDENTIFICADOR { $$ = adiciona_nodo($7); }
                ;
 
-parametros: '(' lista_parametros ')'
-          ;
+parametros: '(' lista_parametros ')';
 
 lista_parametros: parametro
                | lista_parametros ',' parametro
                | /* Vazio */
                ;
 
-parametro: tipo TK_IDENTIFICADOR {
-                    liberaPalavraeNo($2);
-}
+parametro: tipo TK_IDENTIFICADOR { libera_vl($2); }
          ;
 
-corpo_funcao: bloco_comandos
-            ;
+corpo_funcao: bloco_comandos { $$ = $1; };
 
-comandos: comando
-        | comandos comando {
-               $$ = $1;
-               adicionarProximo($$, $2);
-        }
-        ;
+comandos: comando { $$ = $1; }
+        | comandos comando { adiciona_filho($1, $2); $$ = $1; };
 
-comando: declaracao_variavel_local {$$ = $1;}
-       | atribuicao                {$$ = $1;}
-       | condicao                  {$$ = $1;}
-       | repeticao                 {$$ = $1;}
-       | retorno                   {$$ = $1;}
-       | bloco_comandos            {$$ = $1;}
-       | chamada_funcao_init       {$$ = $1;}
+comando: declaracao_variavel_local { $$ = $1; }
+       | atribuicao { $$ = $1; }
+       | condicao { $$ = $1; }
+       | repeticao { $$ = $1; }
+       | retorno { $$ = $1; }
+       | bloco_comandos { $$ = $1; }
+       | chamada_funcao_init { $$ = $1; }
        ;
 
-
-declaracao_variavel_local: tipo lista_identificadores ';' {
-     if($2->valor == TIPO_CABECA_LISTA){
-          $$ = $2->proximo;
-          free($2);
-     }
-     else{
-          $$ = $2;
-     }
-}
+declaracao_variavel_local: tipo lista_identificadores ';' { $$ = $2; }
                        ;
 
-atribuicao: TK_IDENTIFICADOR '=' expressao ';' {
-     nodo* identificador = novoNo(TIPO_IDENTIFICADOR, $1);
-     $$ = comandoAtribuicao(identificador, $3);
-}
-         ;
+atribuicao: TK_IDENTIFICADOR '=' expressao ';' { 
+    Nodo *novo = adiciona_nodo($1);
+    adiciona_filho(novo, $3);
+    $$ = novo;
+    }
+    ;
 
-condicao: TK_PR_IF '(' expressao ')' bloco_comandos
-        | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos
+condicao: TK_PR_IF '(' expressao ')' bloco_comandos { $$ = adiciona_filho(adiciona_nodo_label("if"), adiciona_filho($3, $5)); }
+        | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { $$ = adiciona_filho(adiciona_nodo_label("if"), adiciona_filho($3, adiciona_filho($5, $7))); }
         ;
 
-repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos
+repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos { $$ = adiciona_filho(adiciona_nodo_label("while"), adiciona_filho($3, $5)); }
          ;
 
-retorno: TK_PR_RETURN expressao ';'
+retorno: TK_PR_RETURN expressao ';' { $$ = adiciona_filho(adiciona_nodo_label("return"), $2); }
        ;
 
-bloco_comandos: '{' comandos '}' {
-                    $$ = $2->proximo; 
-                    free($2);
-               }
-              | '{' '}' {
-                    $$ = novoNo(TIPO_CABECA_LISTA, NULL);
-              }
-              ;
+bloco_comandos: '{' comandos '}' { $$ = $2; }
+             | '{' '}' { $$ = NULL;}
 
-chamada_funcao_init: TK_IDENTIFICADOR '(' argumentos ')' ';'
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')' 
+chamada_funcao_init: TK_IDENTIFICADOR '(' argumentos ')' ';' { 
+            Nodo *novo_nodo = adiciona_nodo_label("call");
+            adiciona_filho(novo_nodo, adiciona_nodo($1));
+            adiciona_filho(novo_nodo, $3);
+            $$ = novo_nodo;
+    };
+
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')' { $$ = adiciona_filho(adiciona_nodo($1), $3); }
              ;
 
-argumentos: 
-          | expressao
-          | argumentos ',' expressao
-          ;
+argumentos: /* Vazio */ { $$ = NULL; }
+         | expressao { $$ = $1; }
+         | argumentos ',' expressao { $$ = adiciona_filho($1, $3); $$ = $1;}; 
 
-expressao: prec7;
+expressao: prec7 { $$ = $1; }
+         ;
 
-prec7: prec6 
-     | prec7 TK_OC_OR prec6;
+prec7: prec6 { $$ = $1; }
+    | prec7 TK_OC_OR prec6 { $$ = adiciona_filho(adiciona_nodo_label("or"), adiciona_filho($1, $3)); }
+    ;
 
-prec6: prec5
-     | prec6 TK_OC_AND prec5;
+prec6: prec5 { $$ = $1; }
+    | prec6 TK_OC_AND prec5 { $$ = adiciona_filho(adiciona_nodo_label("and"), adiciona_filho($1, $3)); }
+    ;
 
-prec5: prec4
-     | prec5 TK_OC_EQ prec4
-     | prec5 TK_OC_NE prec4;
+prec5: prec4 { $$ = $1; }
+    | prec5 TK_OC_EQ prec4 { $$ = adiciona_filho(adiciona_nodo_label("=="), adiciona_filho($1, $3)); }
+    | prec5 TK_OC_NE prec4 { $$ = adiciona_filho(adiciona_nodo_label("!="), adiciona_filho($1, $3)); }
+    ;
 
-prec4: prec3
-     | prec4 TK_OC_LE prec3
-     | prec4 TK_OC_GE prec3
-     | prec4 '<' prec3
-     | prec4 '>' prec3;
+prec4: prec3 { $$ = $1; }
+    | prec4 TK_OC_LE prec3 { $$ = adiciona_filho(adiciona_nodo_label("<="), adiciona_filho($1, $3)); }
+    | prec4 TK_OC_GE prec3 { $$ = adiciona_filho(adiciona_nodo_label(">="), adiciona_filho($1, $3)); }
+    | prec4 '<' prec3 { $$ = adiciona_filho(adiciona_nodo_label("<"), adiciona_filho($1, $3)); }
+    | prec4 '>' prec3 { $$ = adiciona_filho(adiciona_nodo_label(">"), adiciona_filho($1, $3)); }
+    ;
 
-prec3: prec2
-     | prec3 '+' prec2
-     | prec3 '-' prec2;
+prec3: prec2 { $$ = $1; }
+    | prec3 '+' prec2 { $$ = adiciona_filho(adiciona_nodo_label("+"), adiciona_filho($1, $3)); }
+    | prec3 '-' prec2 { $$ = adiciona_filho(adiciona_nodo_label("-"), adiciona_filho($1, $3)); }
+    ;
 
-prec2: prec1
-     | prec2 '*' prec1
-     | prec2 '/' prec1
-     | prec2 '%' prec1;
-     
-prec1: '-' prec1 
-     | '!' prec1
-     | primario;
-     
-primario: '(' expressao ')'
-        | TK_IDENTIFICADOR
-        | literais
-        | chamada_funcao
+prec2: prec1 { $$ = $1; }
+    | prec2 '*' prec1 { $$ = adiciona_filho(adiciona_nodo_label("*"), adiciona_filho($1, $3)); }
+    | prec2 '/' prec1 { $$ = adiciona_filho(adiciona_nodo_label("/"), adiciona_filho($1, $3)); }
+    | prec2 '%' prec1 { $$ = adiciona_filho(adiciona_nodo_label("%"), adiciona_filho($1, $3)); }
+    ;
+
+prec1: '-' prec1 { $$ = adiciona_filho(adiciona_nodo_label("-"), $2); }
+    | '!' prec1 { $$ = adiciona_filho(adiciona_nodo_label("!"), $2); }
+    | primario { $$ = $1; }
+    ;
+
+primario: '(' expressao ')' { $$ = $2; }
+        | TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
+        | literais { $$ = $1; }
+        | chamada_funcao{ $$ = $1; }
         ;
 
-literais: TK_LIT_INT   {$$ = novoNo(TIPO_LITERAL, $1);}
-        | TK_LIT_FLOAT {$$ = novoNo(TIPO_LITERAL, $1);}
-        | TK_LIT_TRUE  {$$ = novoNo(TIPO_LITERAL, $1);}
-        | TK_LIT_FALSE {$$ = novoNo(TIPO_LITERAL, $1);}
+literais: TK_LIT_INT { $$ = adiciona_nodo_label("int"); }
+        | TK_LIT_FLOAT { $$ = adiciona_nodo_label("float"); }
+        | TK_LIT_FALSE { $$ = adiciona_nodo_label("false"); }
+        | TK_LIT_TRUE { $$ = adiciona_nodo_label("true"); }
+        ;
 
 %%

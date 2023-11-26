@@ -1,0 +1,58 @@
+
+//var global
+int z,d,e;
+float abc;
+bool zd,zk;
+
+//def funcoes 
+// lista de parametros : é dada entre parênteses e é composta por zero ou mais parâmetros de
+//                       entrada, separados por vírgula
+// lista de parametros (=>) (int,bool,float)! nome 
+// termina sem ponto e virgula
+() >= float! dda {
+    // Bloco de comandos vazio
+}
+() >= bool! dda {
+}
+(int a, int b) >= int! add {
+    // Bloco de comandos preenchido
+    int result;  // Declaração de variável local de tipo int
+    result = a + b;  // Comando de atribuição
+    return result;  // Comando de retorno
+} // funcao termina sem ponto e virgula
+
+
+() >= int! main {
+
+  // declaracao_variavel_local: tipo lista_nomes 
+  int primeiro,segundo,teste;
+
+  // atribuicao: identificador = expressao
+  primeiro = 10;
+  segundo = 15;
+  teste = primeiro * (10 +15);
+
+  //chamada de funcao: nome(argumentos)
+  add(primeiro,segundo);
+  add(primeiro);
+  add();
+
+  //condicional if
+  if (primeiro == 10){
+    primeiro = 10%5;
+  }
+  if (teste >= 0){
+    teste = add(segundo, teste);
+  }else{
+  }
+
+  //while
+  while(primeiro & 10){
+    teste = add();
+  }
+  while(true){
+  }
+
+  //return: return expressao
+  return add(primeiro*teste, -segundo);
+}

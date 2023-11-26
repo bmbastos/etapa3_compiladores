@@ -18,7 +18,7 @@ CFLAGS = -Wall -Wextra
 EXECUTABLE = etapa3
 
 # Listagem de arquivos fonte
-SOURCES = lex.yy.c parser.tab.c functions.c ast.c main.c
+SOURCES = lex.yy.c parser.tab.c functions.c ast.c main.c valor_lexico.c
 
 # Objetos gerados
 OBJECTS = $(SOURCES:.c=.o)
@@ -35,7 +35,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Regra para construir o analisador sintático
-parser.tab.c: parser.y estruturas.h ast.h functions.h
+parser.tab.c: parser.y valor_lexico.h ast.h functions.h
 	$(YACC) -v -d $< -o $@
 
 # Regra para construir o analisador léxico
