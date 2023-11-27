@@ -11,33 +11,25 @@ typedef enum tipo
     OPERADOR_ARITMETICO_UNARIO,
     OPERADOR_ARITMETICO_BINARIO,
     IDENTIFICADOR,
-    LITERAL,
+    LITERAL_INTEIRO,
+    LITERAL_FLUTUANTE,
+    LITERAL_BOOLEANO,
     FUNCAO,
-    TYPE,
     CONTROL,
-    OUTRO
-} Tipo;
+    NAO_DEFINIDO
+} tipo_t;
 
-typedef enum tipoLiteral
-{
-    INTEIRO,
-    FLOAT,
-    BOOL,
-    NAO_LITERAL
-} TipoLiteral;
+typedef enum tipoBool {
+    FALSE,
+    TRUE
+} bool_t;
 
 typedef struct valorLexico
 {
     int linha;
-    Tipo tipo;
-    TipoLiteral tipo_literal;
-    char *label;
-    union valor {
-        int valor_int;
-        float valor_float;
-        int valor_bool;
-    } valor;
-} valorLexico;
+    tipo_t tipo;
+    char *valor_token;
+} meuValorLexico;
 
-valorLexico define_yyval(char* yytext, Tipo tipo, TipoLiteral tipo_literal, int num_lines);
-void libera_vl(valorLexico valor_lexico);
+meuValorLexico define_yyval(char* yytext, tipo_t tipo, int num_lines);
+void libera_vl(meuValorLexico valor_lexico);

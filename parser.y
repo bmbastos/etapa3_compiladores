@@ -20,45 +20,45 @@
     #include "ast.h"
 }
 %union{
-    valorLexico v_lexico;
+    meuValorLexico valor_lexico;
     struct Nodo* ast_no;
 }
 
-%token<v_lexico> TK_PR_INT
-%token<v_lexico> TK_PR_FLOAT
-%token<v_lexico> TK_PR_BOOL
-%token<v_lexico> TK_PR_IF
-%token<v_lexico> TK_PR_ELSE
-%token<v_lexico> TK_PR_WHILE
-%token<v_lexico> TK_PR_RETURN
-%token<v_lexico> TK_OC_LE
-%token<v_lexico> TK_OC_GE
-%token<v_lexico> TK_OC_EQ
-%token<v_lexico> TK_OC_NE
-%token<v_lexico> TK_OC_AND
-%token<v_lexico> TK_OC_OR
-%token<v_lexico> TK_IDENTIFICADOR
-%token<v_lexico> TK_LIT_INT
-%token<v_lexico> TK_LIT_FLOAT
-%token<v_lexico> TK_LIT_FALSE
-%token<v_lexico> TK_LIT_TRUE
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_BOOL
+%token<valor_lexico> TK_PR_IF
+%token<valor_lexico> TK_PR_ELSE
+%token<valor_lexico> TK_PR_WHILE
+%token<valor_lexico> TK_PR_RETURN
+%token<valor_lexico> TK_OC_LE
+%token<valor_lexico> TK_OC_GE
+%token<valor_lexico> TK_OC_EQ
+%token<valor_lexico> TK_OC_NE
+%token<valor_lexico> TK_OC_AND
+%token<valor_lexico> TK_OC_OR
+%token<valor_lexico> TK_IDENTIFICADOR
+%token<valor_lexico> TK_LIT_INT
+%token<valor_lexico> TK_LIT_FLOAT
+%token<valor_lexico> TK_LIT_FALSE
+%token<valor_lexico> TK_LIT_TRUE
 %token TK_ERRO
 
-%token<v_lexico> '+'
-%token<v_lexico> '{'
-%token<v_lexico> '}'
-%token<v_lexico> '('
-%token<v_lexico> ')'
-%token<v_lexico> '='
-%token<v_lexico> ','
-%token<v_lexico> ';'
-%token<v_lexico> '<'
-%token<v_lexico> '>'
-%token<v_lexico> '-'
-%token<v_lexico> '%'
-%token<v_lexico> '/'
-%token<v_lexico> '*'
-%token<v_lexico> '!'
+%token<valor_lexico> '+'
+%token<valor_lexico> '{'
+%token<valor_lexico> '}'
+%token<valor_lexico> '('
+%token<valor_lexico> ')'
+%token<valor_lexico> '='
+%token<valor_lexico> ','
+%token<valor_lexico> ';'
+%token<valor_lexico> '<'
+%token<valor_lexico> '>'
+%token<valor_lexico> '-'
+%token<valor_lexico> '%'
+%token<valor_lexico> '/'
+%token<valor_lexico> '*'
+%token<valor_lexico> '!'
 
 %type<ast_no> programa
 %type<ast_no> elementos
@@ -78,7 +78,6 @@
 %type<ast_no> argumentos
 %type<ast_no> chamada_funcao
 %type<ast_no> lista_identificadores
-%type<ast_no> tipo
 %type<ast_no> primario
 %type<ast_no> prec1
 %type<ast_no> prec2
@@ -121,13 +120,13 @@ declaracoes_globais: declaracao_variaveis_globais;
 
 declaracao_variaveis_globais: tipo lista_identificadores ';'
 
-tipo: TK_PR_INT { $$ = adiciona_nodo($1);};
-    | TK_PR_FLOAT { $$ = adiciona_nodo($1);};
-    | TK_PR_BOOL { $$ = adiciona_nodo($1);};
+tipo: TK_PR_INT
+    | TK_PR_FLOAT
+    | TK_PR_BOOL
 
 lista_identificadores: TK_IDENTIFICADOR { $$ = adiciona_nodo($1); }
                    | lista_identificadores ',' TK_IDENTIFICADOR { 
-                    adiciona_filho($1, adiciona_nodo($3));  $$ = $1;
+                    adiciona_filho($$, adiciona_nodo($3));
                     }
                    | /* Vazio */ { $$ = NULL; };
 
@@ -181,7 +180,7 @@ comando: declaracao_variavel_local { $$ = $1; }
        | chamada_funcao_init { $$ = $1; }
        ;
 
-declaracao_variavel_local: tipo lista_identificadores ';' { $$ = adiciona_filho($1, $2); }
+declaracao_variavel_local: tipo lista_identificadores ';' { $$ = $2; }
                        ;
 
 atribuicao: TK_IDENTIFICADOR '=' expressao ';' { 

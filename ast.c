@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Nodo *adiciona_nodo(valorLexico valor_lexico)
+Nodo *adiciona_nodo(meuValorLexico valor_lexico)
 {
     Nodo *nodo;
     nodo = malloc(sizeof(Nodo));
@@ -22,18 +22,16 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
 
 Nodo *adiciona_nodo_by_label(char *label)
 {
-    valorLexico valor_lexico;
+    meuValorLexico valor_lexico;
     valor_lexico.linha = 0;
-    valor_lexico.tipo = OUTRO;
-    valor_lexico.tipo_literal = NAO_LITERAL;
-    valor_lexico.label = strdup(label);
+    valor_lexico.tipo = NAO_DEFINIDO;
+    valor_lexico.valor_token = strdup(label);
 
-    Nodo *nodo;
-    nodo = malloc(sizeof(Nodo));
+    Nodo *nodo = adiciona_nodo(valor_lexico);
 
-    nodo->valor_lexico = valor_lexico;
-    nodo->filho = NULL;
-    nodo->irmao = NULL;
+    if (nodo != NULL) {
+        free(valor_lexico.valor_token);
+    }
 
     return nodo;
 }
@@ -67,11 +65,11 @@ void imprime_arvore(Nodo *nodo, int profundidade)
     }
 
     if (profundidade == 0)
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.valor_token);
     else 
     {
         printf("+---");
-        printf("%s", nodo->valor_lexico.label);
+        printf("%s", nodo->valor_lexico.valor_token);
     }
     printf("\n");
 
@@ -105,6 +103,8 @@ void libera(void *pai)
 
     Nodo *pai_arvore = (Nodo*)pai;
 
+    libera_vl(pai_arvore->valor_lexico);
+
     if (pai_arvore->filho != NULL) {
         libera(pai_arvore->filho);
     }
@@ -112,9 +112,6 @@ void libera(void *pai)
     if (pai_arvore->irmao != NULL) {
         libera(pai_arvore->irmao);
     }
-
-    libera_vl(pai_arvore->valor_lexico);
-
     free(pai_arvore);
 }
 
@@ -123,7 +120,7 @@ void _imprime_nodo(Nodo *nodo)
     if (nodo == NULL)
         return;
     printf("%p [label=\"", nodo);
-    printf("%s", nodo->valor_lexico.label);
+    printf("%s", nodo->valor_lexico.valor_token);
     printf("\"];\n");
 
     Nodo *nodo_f;

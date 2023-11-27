@@ -10,12 +10,12 @@
 #include "valor_lexico.h"
 
 typedef struct Nodo {
-    valorLexico valor_lexico;
+    meuValorLexico valor_lexico;
     struct Nodo *irmao;
     struct Nodo *filho;
 } Nodo;
 
-Nodo *adiciona_nodo(valorLexico valor_lexico);
+Nodo *adiciona_nodo(meuValorLexico valor_lexico);
 Nodo *adiciona_nodo_by_label(char *label);
 Nodo *adiciona_filho(Nodo *nodo, Nodo *filho);
 void imprime_arvore(Nodo *nodo, int profundidade);
