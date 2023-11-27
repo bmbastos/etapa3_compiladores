@@ -11,8 +11,7 @@ bool zd,zk;
 // termina sem ponto e virgula
 () >= float! dda {
     // Bloco de comandos vazio
-}
-() >= bool! dda {
+    return true;
 }
 (int a, int b) >= int! add {
     // Bloco de comandos preenchido

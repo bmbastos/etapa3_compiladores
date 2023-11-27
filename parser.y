@@ -96,7 +96,7 @@
 programa: elementos { $$ = $1; arvore = $$; }
         | /* Vazio */ { $$ = NULL; };
 
-elementos: elementos elemento {
+elementos: elemento elementos {
             if($1 != NULL && $2 != NULL){
                 $$ = $1;
                 adiciona_filho($$, $2);
@@ -150,7 +150,7 @@ lista_parametros: parametro
                | /* Vazio */
                ;
 
-parametro: tipo TK_IDENTIFICADOR { libera_vl($2); }
+parametro: tipo TK_IDENTIFICADOR
          ;
 
 corpo_funcao: bloco_comandos { $$ = $1; };
