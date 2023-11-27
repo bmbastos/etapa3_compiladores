@@ -156,7 +156,21 @@ parametro: tipo TK_IDENTIFICADOR
 corpo_funcao: bloco_comandos { $$ = $1; };
 
 comandos: comando { $$ = $1; }
-        | comandos comando { adiciona_filho($1, $2); $$ = $1; };
+        | comando comandos { 
+            if($1 != NULL && $2 != NULL){
+                $$ = $1;
+                adiciona_filho($$, $2);
+            }
+            else if($1 != NULL){
+                $$ = $1;
+            }
+            else if($2 != NULL){
+                $$ = $2;
+            }
+            else{
+                $$ = NULL;
+	        }
+        };
 
 comando: declaracao_variavel_local { $$ = $1; }
        | atribuicao { $$ = $1; }
