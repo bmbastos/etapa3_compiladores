@@ -20,7 +20,7 @@ Nodo *adiciona_nodo(valorLexico valor_lexico)
     return nodo;
 }
 
-Nodo *adiciona_nodo_label(char *label)
+Nodo *adiciona_nodo_by_label(char *label)
 {
     valorLexico valor_lexico;
     valor_lexico.linha = 0;

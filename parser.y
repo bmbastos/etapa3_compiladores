@@ -227,7 +227,7 @@ bloco_comandos: '{' comandos '}' { $$ = $2; }
              | '{' '}' { $$ = NULL;}
 
 chamada_funcao_init: TK_IDENTIFICADOR '(' argumentos ')' ';' { 
-            Nodo *novo_nodo = adiciona_nodo_label("call");
+            Nodo *novo_nodo = adiciona_nodo_by_label("call");
             adiciona_filho(novo_nodo, adiciona_nodo($1));
             adiciona_filho(novo_nodo, $3);
             $$ = novo_nodo;
