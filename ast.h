@@ -24,3 +24,4 @@ void libera(void *pai);
 void _imprime_nodo(Nodo *nodo);
 void _imprime_arestas(Nodo *nodo);
 void exporta(void *arvore);
+void concat_call(Nodo* nodo);

@@ -166,3 +166,13 @@ void exporta(void *arvore)
     imprime_arvore(nodo_arvore, 0);
     return;
 }
+void concat_call(Nodo* nodo){
+    char* func_name = nodo->valor_lexico.label;
+    int s_size = strlen(func_name);
+	char* s_copy = strdup(func_name);
+	func_name = malloc(sizeof(char)*(s_size+5));
+	strcpy(func_name, "call ");
+	strcpy(func_name+5, s_copy);
+    nodo->valor_lexico.label = func_name;
+    return;
+}

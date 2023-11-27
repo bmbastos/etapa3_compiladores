@@ -227,18 +227,20 @@ bloco_comandos: '{' comandos '}' { $$ = $2; }
              | '{' '}' { $$ = NULL;}
 
 chamada_funcao_init: TK_IDENTIFICADOR '(' argumentos ')' ';' { 
-            Nodo *novo_nodo = adiciona_nodo_by_label("call");
-            adiciona_filho(novo_nodo, adiciona_nodo($1));
-            adiciona_filho(novo_nodo, $3);
-            $$ = novo_nodo;
+            $$ = adiciona_nodo($1);
+            concat_call($$);
+            adiciona_filho($$, $3);
     };
 
-chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')' { $$ = adiciona_filho(adiciona_nodo($1), $3); }
+chamada_funcao: TK_IDENTIFICADOR '(' argumentos ')' {
+            $$ = adiciona_nodo($1);
+            concat_call($$);
+            adiciona_filho($$, $3); }
              ;
 
 argumentos: /* Vazio */ { $$ = NULL; }
          | expressao { $$ = $1; }
-         | argumentos ',' expressao { $$ = adiciona_filho($1, $3); $$ = $1;}; 
+         | expressao ',' argumentos { $$ = adiciona_filho($1, $3); $$ = $1;}; 
 
 expressao: prec7 { $$ = $1; }
          ;
