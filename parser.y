@@ -176,7 +176,7 @@ comando: declaracao_variavel_local { $$ = $1; }
        | condicao { $$ = $1; }
        | repeticao { $$ = $1; }
        | retorno { $$ = $1; }
-       | bloco_comandos { $$ = $1; }
+       | bloco_comandos ';' { $$ = $1; }
        | chamada_funcao_init { $$ = $1; }
        ;
 
@@ -191,14 +191,14 @@ atribuicao: TK_IDENTIFICADOR '=' expressao ';' {
     }
     ;
 
-condicao: TK_PR_IF '(' expressao ')' bloco_comandos { 
+condicao: TK_PR_IF '(' expressao ')' bloco_comandos ';'{ 
             $$ = adiciona_nodo($1);
             adiciona_filho($$, $3);
             if ($5 != NULL){
                 adiciona_filho($$, $5);
             }
         }
-        | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos { 
+        | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos ';'{ 
             $$ = adiciona_nodo($1);
             adiciona_filho($$, $3);
             if ($5 != NULL){
@@ -210,7 +210,7 @@ condicao: TK_PR_IF '(' expressao ')' bloco_comandos {
         }
         ;
 
-repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos { 
+repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos ';'{ 
             $$ = adiciona_nodo($1);
             adiciona_filho($$, $3);
             if($5 != NULL){
@@ -222,8 +222,8 @@ repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos {
 retorno: TK_PR_RETURN expressao ';' { $$ = adiciona_filho(adiciona_nodo($1), $2); }
        ;
 
-bloco_comandos: '{' comandos '}' { $$ = $2; }
-             | '{' '}' { $$ = NULL;}
+bloco_comandos: '{' comandos '}'{ $$ = $2; }
+             | '{' '}'{ $$ = NULL;}
 
 chamada_funcao_init: TK_IDENTIFICADOR '(' argumentos ')' ';' { 
             $$ = adiciona_nodo($1);
