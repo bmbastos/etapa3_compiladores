@@ -27,16 +27,16 @@
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
-%token<valor_lexico> TK_PR_IF
-%token<valor_lexico> TK_PR_ELSE
-%token<valor_lexico> TK_PR_WHILE
-%token<valor_lexico> TK_PR_RETURN
-%token<valor_lexico> TK_OC_LE
-%token<valor_lexico> TK_OC_GE
-%token<valor_lexico> TK_OC_EQ
-%token<valor_lexico> TK_OC_NE
-%token<valor_lexico> TK_OC_AND
-%token<valor_lexico> TK_OC_OR
+%token TK_PR_IF
+%token TK_PR_ELSE
+%token TK_PR_WHILE
+%token TK_PR_RETURN
+%token TK_OC_LE
+%token TK_OC_GE
+%token TK_OC_EQ
+%token TK_OC_NE
+%token TK_OC_AND
+%token TK_OC_OR
 %token<valor_lexico> TK_IDENTIFICADOR
 %token<valor_lexico> TK_LIT_INT
 %token<valor_lexico> TK_LIT_FLOAT
@@ -44,21 +44,21 @@
 %token<valor_lexico> TK_LIT_TRUE
 %token TK_ERRO
 
-%token<valor_lexico> '+'
-%token<valor_lexico> '{'
-%token<valor_lexico> '}'
-%token<valor_lexico> '('
-%token<valor_lexico> ')'
-%token<valor_lexico> '='
-%token<valor_lexico> ','
-%token<valor_lexico> ';'
-%token<valor_lexico> '<'
-%token<valor_lexico> '>'
-%token<valor_lexico> '-'
-%token<valor_lexico> '%'
-%token<valor_lexico> '/'
-%token<valor_lexico> '*'
-%token<valor_lexico> '!'
+%token '+'
+%token '{'
+%token '}'
+%token '('
+%token ')'
+%token '='
+%token ','
+%token ';'
+%token '<'
+%token '>'
+%token '-'
+%token '%'
+%token '/'
+%token '*'
+%token '!'
 
 %type<ast_no> programa
 %type<ast_no> elementos
@@ -171,7 +171,7 @@ comandos: comando { $$ = $1; }
 	        }
         };
 
-comando: declaracao_variavel_local { $$ = $1; }
+comando: declaracao_variavel_local { $$ = NULL; }
        | atribuicao { $$ = $1; }
        | condicao { $$ = $1; }
        | repeticao { $$ = $1; }
@@ -184,7 +184,7 @@ declaracao_variavel_local: tipo lista_identificadores ';' { $$ = $2; }
                        ;
 
 atribuicao: TK_IDENTIFICADOR '=' expressao ';' { 
-    $$ = adiciona_nodo($2);
+    $$ = adiciona_nodo_by_label("=");
     Nodo *novo_id = adiciona_nodo($1);
     adiciona_filho($$, novo_id);
     adiciona_filho($$, $3);
@@ -192,14 +192,14 @@ atribuicao: TK_IDENTIFICADOR '=' expressao ';' {
     ;
 
 condicao: TK_PR_IF '(' expressao ')' bloco_comandos ';'{ 
-            $$ = adiciona_nodo($1);
+            $$ = adiciona_nodo_by_label("if");
             adiciona_filho($$, $3);
             if ($5 != NULL){
                 adiciona_filho($$, $5);
             }
         }
         | TK_PR_IF '(' expressao ')' bloco_comandos TK_PR_ELSE bloco_comandos ';'{ 
-            $$ = adiciona_nodo($1);
+            $$ = adiciona_nodo_by_label("if");
             adiciona_filho($$, $3);
             if ($5 != NULL){
                 adiciona_filho($$, $5);
@@ -211,7 +211,7 @@ condicao: TK_PR_IF '(' expressao ')' bloco_comandos ';'{
         ;
 
 repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos ';'{ 
-            $$ = adiciona_nodo($1);
+            $$ = adiciona_nodo_by_label("while");
             adiciona_filho($$, $3);
             if($5 != NULL){
                 adiciona_filho($$, $5);
@@ -219,7 +219,7 @@ repeticao: TK_PR_WHILE '(' expressao ')' bloco_comandos ';'{
         }
          ;
 
-retorno: TK_PR_RETURN expressao ';' { $$ = adiciona_filho(adiciona_nodo($1), $2); }
+retorno: TK_PR_RETURN expressao ';' { $$ = adiciona_filho(adiciona_nodo_by_label("return"), $2); }
        ;
 
 bloco_comandos: '{' comandos '}'{ $$ = $2; }
@@ -245,38 +245,38 @@ expressao: prec7 { $$ = $1; }
          ;
 
 prec7: prec6 { $$ = $1; }
-    | prec7 TK_OC_OR prec6 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec7 TK_OC_OR prec6 { $$ = adiciona_nodo_by_label("|"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
 prec6: prec5 { $$ = $1; }
-    | prec6 TK_OC_AND prec5{ $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec6 TK_OC_AND prec5{ $$ = adiciona_nodo_by_label("&"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
 prec5: prec4 { $$ = $1; }
-    | prec5 TK_OC_EQ prec4 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec5 TK_OC_NE prec4 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec5 TK_OC_EQ prec4 { $$ = adiciona_nodo_by_label("=="); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec5 TK_OC_NE prec4 { $$ = adiciona_nodo_by_label("!="); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
 prec4: prec3 { $$ = $1; }
-    | prec4 TK_OC_LE prec3 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec4 TK_OC_GE prec3 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec4 '<' prec3 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec4 '>' prec3 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec4 TK_OC_LE prec3 { $$ = adiciona_nodo_by_label("<="); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec4 TK_OC_GE prec3 { $$ = adiciona_nodo_by_label(">="); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec4 '<' prec3 { $$ = adiciona_nodo_by_label("<"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec4 '>' prec3 { $$ = adiciona_nodo_by_label(">"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
 prec3: prec2 { $$ = $1; }
-    | prec3 '+' prec2 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec3 '-' prec2 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec3 '+' prec2 { $$ = adiciona_nodo_by_label("+"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec3 '-' prec2 { $$ = adiciona_nodo_by_label("-"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
 prec2: prec1 { $$ = $1; }
-    | prec2 '*' prec1 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec2 '/' prec1 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
-    | prec2 '%' prec1 { $$ = adiciona_nodo($2); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec2 '*' prec1 { $$ = adiciona_nodo_by_label("*"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec2 '/' prec1 { $$ = adiciona_nodo_by_label("/"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
+    | prec2 '%' prec1 { $$ = adiciona_nodo_by_label("%"); adiciona_filho($$,$1); adiciona_filho($$,$3); }
     ;
 
-prec1: '-' prec1 { $$ = adiciona_nodo($1); adiciona_filho($$,$2);}
-    | '!' prec1 { $$ = adiciona_nodo($1); adiciona_filho($$,$2);}
+prec1: '-' prec1 { $$ = adiciona_nodo_by_label("-"); adiciona_filho($$,$2);}
+    | '!' prec1 { $$ = adiciona_nodo_by_label("!"); adiciona_filho($$,$2);}
     | primario { $$ = $1; }
     ;
 

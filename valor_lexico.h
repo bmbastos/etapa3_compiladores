@@ -6,23 +6,11 @@
 #pragma once
 typedef enum tipo
 {
-    CARACTERE_ESPECIAL,
-    OPERADOR_LOGICO,
-    OPERADOR_ARITMETICO_UNARIO,
-    OPERADOR_ARITMETICO_BINARIO,
     IDENTIFICADOR,
-    LITERAL_INTEIRO,
-    LITERAL_FLUTUANTE,
-    LITERAL_BOOLEANO,
-    FUNCAO,
-    CONTROL,
+    LITERAL,
     NAO_DEFINIDO
 } tipo_t;
 
-typedef enum tipoBool {
-    FALSE,
-    TRUE
-} bool_t;
 
 typedef struct valorLexico
 {

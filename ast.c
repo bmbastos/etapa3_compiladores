@@ -26,12 +26,12 @@ Nodo *adiciona_nodo_by_label(char *label)
     valor_lexico.linha = 0;
     valor_lexico.tipo = NAO_DEFINIDO;
     valor_lexico.valor_token = strdup(label);
+    if (valor_lexico.valor_token == NULL) {
+        // Tratar erro de alocação de memória, se necessário
+        return NULL;
+    }
 
     Nodo *nodo = adiciona_nodo(valor_lexico);
-
-    if (nodo != NULL) {
-        free(valor_lexico.valor_token);
-    }
 
     return nodo;
 }
@@ -160,6 +160,7 @@ void exporta(void *arvore)
     nodo_arvore = (Nodo*) arvore;
     _imprime_nodo(nodo_arvore);
     _imprime_arestas(nodo_arvore);
+    imprime_arvore(nodo_arvore, 1);
     return;
 }
 void concat_call(Nodo* nodo){
