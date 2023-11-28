@@ -28,7 +28,7 @@ all: $(EXECUTABLE)
 
 # Dependências para construção do executável
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) -fsanitize=address -g -Werror -o $@ $^ -lfl -lm
+	$(CC) $(CFLAGS) -o $@ $^
 
 # Regra genérica para compilar arquivos .c
 %.o: %.c
